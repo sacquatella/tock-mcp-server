@@ -45,6 +45,32 @@ server:
 
 The image is built with a `scratch` runtime and expects a configuration file available at `/etc/tock/config.yaml`.
 
+`config.yaml`
+```yaml
+tock:
+  # Base URL of the Tock instance (no trailing slash)
+  base_url: "https://<bot-api-endpoint>"
+  # Tock namespace
+  namespace: "app"
+  # Bot name
+  bot: "howtonet"
+  # Web-connector identifier
+  connector: "web"
+  # User ID sent to Tock with every request
+  user_id: "mcp-user-001"
+
+server:
+  # HTTP listen address of the MCP server
+  addr: ":8083"
+```
+
+```bash
+docker run --rm -p 8083:8083 \
+  -v "$(pwd)/config.yaml:/config/config.yaml:ro" \
+  ghcr.io/sacquatella/tock-mcp-server:v0.5.0
+```
+
+
 Build locally:
 
 ```bash
@@ -105,7 +131,7 @@ spec:
     spec:
       containers:
         - name: tock-mcp-server
-          image: ghcr.io/sacquatella/tock-mcp-server:<tag>
+          image: ghcr.io/sacquatella/tock-mcp-server:v0.5.0
           args: ["-config", "/config/config.yaml", "-addr", ":8083"]
           volumeMounts:
             - name: config
