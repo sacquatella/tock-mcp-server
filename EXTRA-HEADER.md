@@ -13,10 +13,10 @@ Each entry maps a **header name** to a **default value** (use an empty string fo
 
 ```yaml
 tock:
-  base_url: "https://demo.tock.ai"
-  namespace: "sacquatella"
+  base_url: "https://<bot-api-host>"
+  namespace: "app"
   bot: "howtonet"
-  connector: "howtonetweb"
+  connector: "web"
   user_id: "mcp-user-001"
   extra_headers:
     # Always sent with this fixed value — Copilot does not need to pass it.

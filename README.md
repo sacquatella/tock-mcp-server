@@ -13,6 +13,34 @@ make build-servers
 make run-tock-mcp
 ```
 
+## Configuration
+
+The server expects a YAML configuration file with the following structure:
+
+```yaml
+tock:
+  # Base URL of the Tock instance (no trailing slash)
+  base_url: "https://<bot-api-host>"
+  # Tock namespace
+  namespace: "app"
+  # Bot name
+  bot: "howtonet"
+  # Web-connector identifier
+  connector: "web"
+  # User ID sent to Tock with every request
+  user_id: "mcp-user-001"
+  # Optional extra HTTP headers forwarded to the Tock web-connector.
+  # The value is the default used when the MCP caller does not provide one.
+  # Leave empty ("") to make the header optional with no default.
+  # extra_headers:
+  #  X-Toki-Origin: "github-copilot"   # always sent; can be overridden by the caller
+  #  X-Toki-Filter: ""                 # no default — provided by the caller if needed
+
+server:
+  # HTTP listen address of the MCP server
+  addr: ":8083"
+```
+
 ## Docker image (scratch)
 
 The image is built with a `scratch` runtime and expects a configuration file available at `/etc/tock/config.yaml`.
@@ -33,6 +61,8 @@ docker run --rm -p 8083:8083 \
 
 ## Deploying on Kubernetes (ConfigMap)
 
+
+### with manifest
 The container does not embed `config.yaml`, so each environment can mount its own ConfigMap.
 
 Use the provided manifest:
@@ -87,8 +117,35 @@ spec:
             name: tock-mcp-config
 ```
 
-## Container CI/CD
+### With Helm chart
 
-A GitHub Actions workflow is available in `.github/workflows/container.yml`:
-- it builds the image on pushes and pull requests,
-- it only pushes to GHCR when the ref is a tag.
+A Helm chart is available in `k8s/chart/` for easier deployment and configuration management.
+
+```bash
+helm install tock-mcp ./k8s/chart -f values.yaml
+```
+
+```yaml
+config:
+  tock:
+    base_url: "https://tock.my-company.com"
+    namespace: "app"
+    bot: "my-bot"
+    connector: "web"
+    user_id: "mcp-prod"
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: tock-mcp.my-company.com
+      paths:
+        - path: /mcp
+          pathType: Prefix
+  tls:
+    - secretName: tock-mcp-tls
+      hosts:
+        - tock-mcp.my-company.com
+```
