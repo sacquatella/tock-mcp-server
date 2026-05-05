@@ -30,6 +30,9 @@ run-docker: docker ## Run tock-mcp-server in Docker
       -v "$(pwd)/config.yaml:/config/config.yaml:ro" \
       tock-mcp-server:local
 
+run-mcp-instpector: ## Run mcp-inspector
+	npx @modelcontextprotocol/inspector
+
 clean: ## Clean build artifacts
 	go clean
 	rm -rf $(BIN_DIR)

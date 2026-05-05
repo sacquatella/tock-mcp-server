@@ -320,11 +320,13 @@ func main() {
 		},
 	)
 
-	// StreamableHTTPHandler exposes the MCP server over HTTP with JSON responses.
-	// Each request gets the same server instance (stateless tool execution).
+	// StreamableHTTPHandler exposes the MCP server over HTTP.
+	// SSE (GET /mcp) and JSON-RPC (POST /mcp) are both supported.
+	// JSONResponse is left to false so that GET /mcp opens a proper SSE stream
+	// and ping/notifications are handled natively by the SDK.
 	handler := mcp.NewStreamableHTTPHandler(
 		func(r *http.Request) *mcp.Server { return server },
-		&mcp.StreamableHTTPOptions{JSONResponse: true},
+		nil,
 	)
 
 	// Wrap the handler with a request logger before registering on the mux.
@@ -342,6 +344,8 @@ func main() {
 	})
 
 	log.Printf("tock-web MCP server listening on http://localhost%s/mcp", cfg.Server.Addr)
+	log.Printf("→ POST /mcp  JSON-RPC (stateless)")
+	log.Printf("→ GET  /mcp  SSE stream (server-sent events)")
 	log.Printf("→ Tock endpoint: %s/io/%s/%s/%s",
 		cfg.Tock.BaseURL, cfg.Tock.Namespace, cfg.Tock.Bot, cfg.Tock.Connector)
 
